@@ -7,16 +7,16 @@ const API_KEY = 'e3a5ebef0de67a460ad53fa4b84b83c2';
 $cameraModels = array();
 
 // Parameters
-$minAreaLongitude = 51.047772;
-$maxAreaLongitude = 51.059772;
-$minAreaLatitude  = 3.7191141;
-$maxAreaLatitude  = 3.7311141;
+$minAreaLongitude = 51.052872;
+$maxAreaLongitude = 51.058872;
+$minAreaLatitude  = 3.7185141;
+$maxAreaLatitude  = 3.7285141;
 
-$nbSquares = 25;
+$nbSquares = 100;
 
 // Main
-$longitudeResolution = round(($maxAreaLongitude - $minAreaLongitude)/$nbSquares, 6);
-$latitudeResolution = round(($maxAreaLatitude - $minAreaLatitude)/$nbSquares, 6);
+$longitudeResolution = round(($maxAreaLongitude - $minAreaLongitude)/sqrt($nbSquares), 6);
+$latitudeResolution = round(($maxAreaLatitude - $minAreaLatitude)/sqrt($nbSquares), 6);
 
 if (!file_exists('/tmp/city.flickr')) {
     echo 'Fetching data for ' . $nbSquares . ' ' . ($nbSquares != 1 ? 'squares' : 'square') . PHP_EOL;
@@ -27,31 +27,33 @@ if (!file_exists('/tmp/city.flickr')) {
     echo PHP_EOL;
 
     $squares = array();
-    for ($i = 0; $i < $nbSquares; $i++) {
-        $minLongitude = $minAreaLongitude + $i*$longitudeResolution;
-        $minLatitude = $minAreaLatitude + $i*$latitudeResolution;
-        $maxLongitude = $minAreaLongitude + ($i+1)*$longitudeResolution;
-        $maxLatitude = $minAreaLatitude + ($i+1)*$latitudeResolution;
+    for ($i = 0; $i < sqrt($nbSquares); $i++) {
+        for ($j = 0; $j < sqrt($nbSquares); $j++) {
+            $minLongitude = $minAreaLongitude + $i*$longitudeResolution;
+            $minLatitude = $minAreaLatitude + $j*$latitudeResolution;
+            $maxLongitude = $minAreaLongitude + ($i+1)*$longitudeResolution;
+            $maxLatitude = $minAreaLatitude + ($j+1)*$latitudeResolution;
 
-        echo 'Square ' . ($i+1) . PHP_EOL;
-        echo '  Bounding Box' . PHP_EOL;
-        echo '    minLongitude: ' . $minLongitude . PHP_EOL;
-        echo '    minLatitude: ' . $minLatitude . PHP_EOL;
-        echo '    maxLongitude: ' . $maxLongitude . PHP_EOL;
-        echo '    maxLatitude: ' . $maxLatitude . PHP_EOL;
-        echo PHP_EOL;
+            echo 'Square ' . (count($squares)+1) . PHP_EOL;
+            echo '  Bounding Box' . PHP_EOL;
+            echo '    minLongitude: ' . $minLongitude . PHP_EOL;
+            echo '    minLatitude: ' . $minLatitude . PHP_EOL;
+            echo '    maxLongitude: ' . $maxLongitude . PHP_EOL;
+            echo '    maxLatitude: ' . $maxLatitude . PHP_EOL;
+            echo PHP_EOL;
 
-        $squares[$i] = array_merge(
-            array(
-                'square' => array(
-                    'minLongitude' => $minLongitude,
-                    'minLatitude'  => $minLatitude,
-                    'maxLongitude' => $maxLongitude,
-                    'maxLatitude'  => $maxLatitude
+            $squares[] = array_merge(
+                array(
+                    'square' => array(
+                        'minLongitude' => $minLongitude,
+                        'minLatitude'  => $minLatitude,
+                        'maxLongitude' => $maxLongitude,
+                        'maxLatitude'  => $maxLatitude
+                    ),
                 ),
-            ),
-            findPhotos($minLongitude, $minLatitude, $maxLongitude, $maxLatitude)
-        );
+                findPhotos($minLongitude, $minLatitude, $maxLongitude, $maxLatitude)
+            );
+        }
     }
 
     $data = array(
