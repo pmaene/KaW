@@ -12,7 +12,7 @@ $maxAreaLongitude = 51.059772;
 $minAreaLatitude  = 3.7191141;
 $maxAreaLatitude  = 3.7311141;
 
-$nbSquares = 1;
+$nbSquares = 25;
 
 // Main
 $longitudeResolution = round(($maxAreaLongitude - $minAreaLongitude)/$nbSquares, 6);
