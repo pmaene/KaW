@@ -187,7 +187,7 @@ function convertDataToXml($data) {
             $xmlData .= convertCameraModelToXml($nbCameraModel, $cameraModel);
 
     foreach ($data['squares'] as $nbSquare => $square) {
-        echo '  Square ' . $nbSquare . PHP_EOL;
+        echo '  Square ' . ($nbSquare+1) . PHP_EOL;
         $xmlData .= convertSquareToXml($nbSquare, $square['square']);
 
         echo '    Photographers' . PHP_EOL;
