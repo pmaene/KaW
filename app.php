@@ -208,7 +208,7 @@ function convertDataToXml($data) {
 
 function convertSquareToXml($nbSquare, $square) {
     $object = new XmlObject(
-        'owl:NamedIndividual',
+        'Square',
         array(
             'rdf:about' => '&city;Square_' . $nbSquare
         ),
@@ -249,7 +249,7 @@ function convertSquareToXml($nbSquare, $square) {
 
 function convertCameraModelToXml($nbCameraModel, $cameraModel) {
     $object = new XmlObject(
-        'owl:NamedIndividual',
+        'CameraModel',
         array(
             'rdf:about' => '&city;CameraModel_' . $nbCameraModel
         ),
@@ -296,7 +296,7 @@ function convertPhotographerToXml($idPhotographer, $photographer) {
     }
 
     $object = new XmlObject(
-        'owl:NamedIndividual',
+        'Photographer',
         array(
             'rdf:about' => '&city;Photographer_' . $idPhotographer
         ),
@@ -311,7 +311,7 @@ function convertPhotographerToXml($idPhotographer, $photographer) {
 
 function convertPhotoToXml($idPhoto, $photo, $nbSquare) {
     $object = new XmlObject(
-        'owl:NamedIndividual',
+        'Photo',
         array(
             'rdf:about' => '&city;Photo_' . $idPhoto
         ),
