@@ -8,6 +8,11 @@ class Flickr
 {
     private $_apiKey = '';
 
+    private $_minLatitude;
+    private $_maxLatitude;
+    private $_minLongitude;
+    private $_maxLongitude;
+
     public $cameraModels = array();
     public $photographers = array();
 
@@ -16,12 +21,36 @@ class Flickr
         $this->_apiKey = $apiKey;
     }
 
-    public function findPhotos($minLongitude, $minLatitude, $maxLongitude, $maxLatitude)
+    public function setMinLatitude($minLatitude)
+    {
+        $this->_minLatitude = $minLatitude;
+        return $this;
+    }
+
+    public function setMaxLatitude($maxLatitude)
+    {
+        $this->_maxLatitude = $maxLatitude;
+        return $this;
+    }
+
+    public function setMinLongitude($minLongitude)
+    {
+        $this->_minLongitude = $minLongitude;
+        return $this;
+    }
+
+    public function setMaxLongitude($maxLongitude)
+    {
+        $this->_maxLongitude = $maxLongitude;
+        return $this;
+    }
+
+    public function findPhotos()
     {
         $result = $this->_doRequest(
             'flickr.photos.search',
             array(
-                'bbox' => $minLongitude . ',' . $minLatitude . ',' . $maxLongitude  . ',' . $maxLatitude
+                'bbox' => $this->_minLatitude . ',' . $this->_minLongitude . ',' . $this->_maxLatitude  . ',' . $this->_maxLongitude
             )
         );
 
@@ -35,7 +64,7 @@ class Flickr
             $result = $this->_doRequest(
                 'flickr.photos.search',
                 array(
-                    'bbox' => $minLongitude . ',' . $minLatitude . ',' . $maxLongitude  . ',' . $maxLatitude,
+                    'bbox' => $this->_minLatitude . ',' . $this->_minLongitude . ',' . $this->_maxLatitude  . ',' . $this->_maxLongitude,
                     'page' => $i+1
                 )
             );

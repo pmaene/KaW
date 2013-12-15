@@ -31,7 +31,7 @@ class Zimmo
         $nbResults = $this->_getNbResults($xpathOfFirstPage);
         $nbPages = ceil($nbResults/20);
 
-        echo 'Found ' . $nbResults . ' ' . ($nbResults != 1 ? 'houses' : 'house') . ' in ' . $nbPages . ' ' . ($nbPages != 1 ? 'pages' : 'page') . PHP_EOL;
+        echo 'Found ' . $nbResults . ' ' . ($nbResults != 1 ? 'properties' : 'property') . ' in ' . $nbPages . ' ' . ($nbPages != 1 ? 'pages' : 'page') . PHP_EOL;
 
         $houses = [];
         for ($i = 1; $i <= $nbPages; $i++) {
@@ -47,6 +47,8 @@ class Zimmo
                 $houses
             );
         }
+
+        echo PHP_EOL;
 
         return $houses;
     }
@@ -76,9 +78,14 @@ class Zimmo
     }
 
     private function _getNbResults($xpathOfFirstPage) {
-        $queryStatus = $xpathOfFirstPage->query("//span[@class='results']")->item(0)->nodeValue;
-        preg_match_all('/\d+/', $queryStatus, $matches);
-        return $matches[0][2];
+        $nbResults = 0;
+        if (0 != $xpathOfFirstPage->query("//span[@class='results']")->length) {
+            $queryStatus = $xpathOfFirstPage->query("//span[@class='results']")->item(0)->nodeValue;
+            preg_match_all('/\d+/', $queryStatus, $matches);
+            $nbResults = $matches[0][2];
+        }
+
+        return $nbResults;
     }
 
     private function _getHouseInformationOf($xpathOfResultPage) {
@@ -146,9 +153,9 @@ class Zimmo
                 if(count($matches[0]) == 0) {
                     $houses[$key]['area']['terrain'] = null;
                 } else {
-                    $area = "";
+                    $area = '';
                     foreach ($matches[0] as $key2 => $value2) {
-                        $area = $area . "" . $value2;
+                        $area = $area . '' . $value2;
                     }
                     $houses[$key]['area']['terrain'] = $area;
                 }
