@@ -36,10 +36,10 @@ if (!file_exists('/tmp/city')) {
         $realEstate = array(
             'business_sale' => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_SALE, Zimmo::BUSINESS),
             'business_rent' => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_RENT, Zimmo::BUSINESS),
-            'flats_sale'    => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_SALE, Zimmo::FLATS),
-            'flats_rent'    => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_RENT, Zimmo::FLATS),
-            'houses_sale'   => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_SALE, Zimmo::HOUSES),
-            'houses_rent'   => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_RENT, Zimmo::HOUSES)
+            'flat_sale'     => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_SALE, Zimmo::FLATS),
+            'flat_rent'     => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_RENT, Zimmo::FLATS),
+            'house_sale'    => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_SALE, Zimmo::HOUSES),
+            'house_rent'    => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_RENT, Zimmo::HOUSES)
         );
 
         echo 'Writing real estate to cache file' . PHP_EOL;
@@ -94,7 +94,7 @@ if (!file_exists('/tmp/city')) {
                 }
 
                 $nbAssigned = count($assignedRealEstate[$type[0]][$type[1]]);
-                echo '  Assigned ' . $nbAssigned . ' ' . ($nbAssigned != 1 ? $type[0] : substr($type[0], 0, -1)) . ' for ' . $type[1] . ' to square' . PHP_EOL;
+                echo '  Assigned ' . $nbAssigned . ' ' . $type[0] . ' ' . ($nbAssigned != 1 ? 'properties' : 'property') . ' for ' . $type[1] . ' to square' . PHP_EOL;
             }
 
             echo PHP_EOL;
@@ -107,7 +107,7 @@ if (!file_exists('/tmp/city')) {
                     'maxLongitude' => $maxLongitude
                 ),
                 'photos'      => $flickr->findPhotos(),
-                'houses'      => $assignedRealEstate,
+                'realEstate'  => $assignedRealEstate,
                 'cafes'       => $osm->findCafes(),
                 'hotels'      => $osm->findHotels(),
                 'restaurants' => $osm->findRestaurants(),

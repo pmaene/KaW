@@ -20,7 +20,7 @@ class Zimmo
 
     public function __construct()
     {
-        $this->_cookieFile = tempnam('/tmp', 'curl_cookie');
+        $this->_cookieFile = tempnam('/tmp', 'curl_cookie_');
     }
 
     public function scrape($postalCode, $cityName, $province, $typeOfRealEstate, $buyRealEstate) {
