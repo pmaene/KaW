@@ -130,3 +130,52 @@ if (!file_exists('/tmp/city')) {
     echo 'Reading data from cache file' . PHP_EOL;
     $data = unserialize(file_get_contents('/tmp/city'));
 }
+
+$out = 'realEstate = [';
+
+$row = 0;
+$column = 0;
+foreach ($data['squares'] as $square) {
+    $nbHousesForSale = count($square['realEstate']['house']['sale']);
+    $avgNormalisedPrice = 0;
+    foreach ($square['realEstate']['house']['sale'] as $property)
+        $avgNormalisedPrice += $property['normalisedPrice']/$nbHousesForSale;
+
+    $out .= $avgNormalisedPrice;
+
+    if (49 == $column%$nbSquares) {
+        $out .= '; ';
+
+        $column = 0;
+        $row++;
+    } else {
+        $out .= ' ';
+        $column++;
+    }
+}
+
+$out .= '];';
+
+echo $out . PHP_EOL . PHP_EOL;
+
+$out = 'photos = [';
+
+$row = 0;
+$column = 0;
+foreach ($data['squares'] as $square) {
+    $out .= count($square['photos']);
+
+    if (49 == $column%$nbSquares) {
+        $out .= '; ';
+
+        $column = 0;
+        $row++;
+    } else {
+        $out .= ' ';
+        $column++;
+    }
+}
+
+$out .= '];';
+
+echo $out . PHP_EOL;
