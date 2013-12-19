@@ -5,14 +5,23 @@ include 'osm.php';
 include 'zimmo.php';
 
 // Parameters
-$postalCode = 9000;
-$cityName   = 'Gent';
-$province   = 'Oost-Vlaanderen';
+$postalCodes = array(
+    2000, 2600, 2018, 2030, 2060, 2140,
+);
+$cityNames   = array(
+    2000 => 'Antwerpen',
+    2600 => 'Berchem',
+    2018 => 'Antwerpen',
+    2030 => 'Antwerpen',
+    2060 => 'Antwerpen',
+    2140 => 'Borgerhout',
+);
+$province   = 'Antwerpen';
 
-$minAreaLatitude  = 51.038872;
-$maxAreaLatitude  = 51.068872;
-$minAreaLongitude = 3.6985141;
-$maxAreaLongitude = 3.7385141;
+$minAreaLatitude  = 51.193;
+$maxAreaLatitude  = 51.24;
+$minAreaLongitude = 4.39;
+$maxAreaLongitude = 4.445;
 
 $nbSquares = 2500;
 
@@ -24,158 +33,135 @@ $zimmo = new Zimmo();
 $latitudeResolution = round(($maxAreaLatitude - $minAreaLatitude)/sqrt($nbSquares), 6);
 $longitudeResolution = round(($maxAreaLongitude - $minAreaLongitude)/sqrt($nbSquares), 6);
 
-if (!file_exists('/tmp/city')) {
-    echo 'Fetching data for ' . $nbSquares . ' ' . ($nbSquares != 1 ? 'squares' : 'square') . PHP_EOL;
-    echo PHP_EOL;
-    echo 'Resolution' . PHP_EOL;
-    echo '  Latitude: ' . $latitudeResolution . PHP_EOL;
-    echo '  Longitude: ' . $longitudeResolution . PHP_EOL;
-    echo PHP_EOL;
+echo 'Fetching data for ' . $nbSquares . ' ' . ($nbSquares != 1 ? 'squares' : 'square') . PHP_EOL;
+echo PHP_EOL;
+echo 'Resolution' . PHP_EOL;
+echo '  Latitude: ' . $latitudeResolution . PHP_EOL;
+echo '  Longitude: ' . $longitudeResolution . PHP_EOL;
+echo PHP_EOL;
 
-    if (!file_exists('/tmp/real_estate')) {
-        $realEstate = array(
-            'business_sale' => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_SALE, Zimmo::BUSINESS),
-            'business_rent' => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_RENT, Zimmo::BUSINESS),
-            'flat_sale'     => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_SALE, Zimmo::FLATS),
-            'flat_rent'     => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_RENT, Zimmo::FLATS),
-            'house_sale'    => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_SALE, Zimmo::HOUSES),
-            'house_rent'    => $zimmo->scrape($postalCode, $cityName, $province, Zimmo::FOR_RENT, Zimmo::HOUSES)
-        );
-
-        echo 'Writing real estate to cache file' . PHP_EOL;
-        file_put_contents('/tmp/real_estate', serialize($realEstate));
-    } else {
-        echo 'Reading real estate from cache file' . PHP_EOL;
-        $realEstate = unserialize(file_get_contents('/tmp/real_estate'));
-    }
-
-    echo PHP_EOL;
-
-    $squares = array();
-    for ($i = 0; $i < sqrt($nbSquares); $i++) {
-        for ($j = 0; $j < sqrt($nbSquares); $j++) {
-            $minLatitude = $minAreaLatitude + $j*$latitudeResolution;
-            $maxLatitude = $minAreaLatitude + ($j+1)*$latitudeResolution;
-            $minLongitude = $minAreaLongitude + $i*$longitudeResolution;
-            $maxLongitude = $minAreaLongitude + ($i+1)*$longitudeResolution;
-
-            echo 'Square ' . (count($squares)+1) . PHP_EOL;
-            echo '  Bounding Box' . PHP_EOL;
-            echo '    minLatitude: ' . $minLatitude . PHP_EOL;
-            echo '    maxLatitude: ' . $maxLatitude . PHP_EOL;
-            echo '    minLongitude: ' . $minLongitude . PHP_EOL;
-            echo '    maxLongitude: ' . $maxLongitude . PHP_EOL;
-            echo PHP_EOL;
-
-            $flickr->setMinLatitude($minLatitude)
-                ->setMaxLatitude($maxLatitude)
-                ->setMinLongitude($minLongitude)
-                ->setMaxLongitude($maxLongitude);
-
-            $osm->setMinLatitude($minLatitude)
-                ->setMaxLatitude($maxLatitude)
-                ->setMinLongitude($minLongitude)
-                ->setMaxLongitude($maxLongitude);
-
-            $assignedRealEstate = array();
-            foreach ($realEstate as $type => $properties) {
-                $type = explode('_', $type);
-                $assignedRealEstate[$type[0]][$type[1]] = array();
-
-                foreach ($properties as $property) {
-                    if (
-                        null !== $property['normalisedPrice']
-                        && null !== $property['coordinates']['latitude'] && null !== $property['coordinates']['longitude']
-                        && $property['coordinates']['latitude'] >= $minLatitude && $property['coordinates']['latitude'] <= $maxLatitude
-                        && $property['coordinates']['longitude'] >= $minLongitude && $property['coordinates']['longitude'] <= $maxLongitude
-                    ) {
-                        $assignedRealEstate[$type[0]][$type[1]][] = $property;
-                    }
-                }
-
-                $nbAssigned = count($assignedRealEstate[$type[0]][$type[1]]);
-                echo '  Assigned ' . $nbAssigned . ' ' . $type[0] . ' ' . ($nbAssigned != 1 ? 'properties' : 'property') . ' for ' . $type[1] . ' to square' . PHP_EOL;
-            }
-
-            echo PHP_EOL;
-
-            $squares[] = array(
-                'square'      => array(
-                    'minLatitude'  => $minLatitude,
-                    'maxLatitude'  => $maxLatitude,
-                    'minLongitude' => $minLongitude,
-                    'maxLongitude' => $maxLongitude
-                ),
-                'photos'      => $flickr->findPhotos(),
-                'realEstate'  => $assignedRealEstate,
-                'cafes'       => $osm->findCafes(),
-                'hotels'      => $osm->findHotels(),
-                'restaurants' => $osm->findRestaurants(),
-                'shops'       => $osm->findShops()
-            );
-
-            echo PHP_EOL;
-        }
-    }
-
-    $data = array(
-        'cameraModels' => $flickr->cameraModels,
-        'photgraphers' => $flickr->photographers,
-        'squares' => $squares
+if (!file_exists('/tmp/real_estate')) {
+    $realEstate = array(
+        'business_sale' => array(),
+        'business_rent' => array(),
+        'flat_sale'     => array(),
+        'flat_rent'     => array(),
+        'house_sale'    => array(),
+        'house_rent'    => array(),
     );
 
-    echo 'Writing data to cache file' . PHP_EOL;
-    file_put_contents('/tmp/city', serialize($data));
+    foreach ($postalCodes as $postalCode) {
+        echo 'Scraping Zimmo for ' . $postalCode . ', ' . $cityNames[$postalCode] . PHP_EOL;
+
+        $realEstate = array(
+            'business_sale' => array_merge(
+                $realEstate['business_sale'],
+                $zimmo->scrape($postalCode, $cityNames[$postalCode], $province, Zimmo::FOR_SALE, Zimmo::BUSINESS)
+            ),
+            'business_rent' => array_merge(
+                $realEstate['business_rent'],
+                $zimmo->scrape($postalCode, $cityNames[$postalCode], $province, Zimmo::FOR_RENT, Zimmo::BUSINESS)
+            ),
+            'flat_sale'     => array_merge(
+                $realEstate['flat_sale'],
+                $zimmo->scrape($postalCode, $cityNames[$postalCode], $province, Zimmo::FOR_SALE, Zimmo::FLATS)
+            ),
+            'flat_rent'     => array_merge(
+                $realEstate['flat_sale'],
+                $zimmo->scrape($postalCode, $cityNames[$postalCode], $province, Zimmo::FOR_RENT, Zimmo::FLATS)
+            ),
+            'house_sale'    => array_merge(
+                $realEstate['house_sale'],
+                $zimmo->scrape($postalCode, $cityNames[$postalCode], $province, Zimmo::FOR_SALE, Zimmo::HOUSES)
+            ),
+            'house_rent'    => array_merge(
+                $realEstate['house_rent'],
+                $zimmo->scrape($postalCode, $cityNames[$postalCode], $province, Zimmo::FOR_RENT, Zimmo::HOUSES)
+            ),
+        );
+    }
+
+    echo 'Writing real estate to cache file' . PHP_EOL;
+    file_put_contents('/tmp/real_estate', serialize($realEstate));
 } else {
-    echo 'Reading data from cache file' . PHP_EOL;
-    $data = unserialize(file_get_contents('/tmp/city'));
+    echo 'Reading real estate from cache file' . PHP_EOL;
+    $realEstate = unserialize(file_get_contents('/tmp/real_estate'));
 }
 
-$out = 'realEstate = [';
+echo PHP_EOL;
 
-$row = 0;
-$column = 0;
-foreach ($data['squares'] as $square) {
-    $nbHousesForSale = count($square['realEstate']['house']['sale']);
-    $avgNormalisedPrice = 0;
-    foreach ($square['realEstate']['house']['sale'] as $property)
-        $avgNormalisedPrice += $property['normalisedPrice']/$nbHousesForSale;
+$squares = array();
+for ($i = 0; $i < sqrt($nbSquares); $i++) {
+    for ($j = 0; $j < sqrt($nbSquares); $j++) {
+        $minLatitude = $minAreaLatitude + $j*$latitudeResolution;
+        $maxLatitude = $minAreaLatitude + ($j+1)*$latitudeResolution;
+        $minLongitude = $minAreaLongitude + $i*$longitudeResolution;
+        $maxLongitude = $minAreaLongitude + ($i+1)*$longitudeResolution;
 
-    $out .= $avgNormalisedPrice;
+        echo 'Square ' . (count($squares)+1) . PHP_EOL;
+        echo '  Bounding Box' . PHP_EOL;
+        echo '    minLatitude: ' . $minLatitude . PHP_EOL;
+        echo '    maxLatitude: ' . $maxLatitude . PHP_EOL;
+        echo '    minLongitude: ' . $minLongitude . PHP_EOL;
+        echo '    maxLongitude: ' . $maxLongitude . PHP_EOL;
+        echo PHP_EOL;
 
-    if (49 == $column%$nbSquares) {
-        $out .= '; ';
+        $flickr->setMinLatitude($minLatitude)
+            ->setMaxLatitude($maxLatitude)
+            ->setMinLongitude($minLongitude)
+            ->setMaxLongitude($maxLongitude);
 
-        $column = 0;
-        $row++;
-    } else {
-        $out .= ' ';
-        $column++;
+        $osm->setMinLatitude($minLatitude)
+            ->setMaxLatitude($maxLatitude)
+            ->setMinLongitude($minLongitude)
+            ->setMaxLongitude($maxLongitude);
+
+        $assignedRealEstate = array();
+        foreach ($realEstate as $type => $properties) {
+            $type = explode('_', $type);
+            $assignedRealEstate[$type[0]][$type[1]] = array();
+
+            foreach ($properties as $property) {
+                if (
+                    null !== $property['normalisedPrice']
+                    && null !== $property['coordinates']['latitude'] && null !== $property['coordinates']['longitude']
+                    && $property['coordinates']['latitude'] >= $minLatitude && $property['coordinates']['latitude'] <= $maxLatitude
+                    && $property['coordinates']['longitude'] >= $minLongitude && $property['coordinates']['longitude'] <= $maxLongitude
+                ) {
+                    $assignedRealEstate[$type[0]][$type[1]][] = $property;
+                }
+            }
+
+            $nbAssigned = count($assignedRealEstate[$type[0]][$type[1]]);
+            echo '  Assigned ' . $nbAssigned . ' ' . $type[0] . ' ' . ($nbAssigned != 1 ? 'properties' : 'property') . ' for ' . $type[1] . ' to square' . PHP_EOL;
+        }
+
+        echo PHP_EOL;
+
+        $squares[] = array(
+            'coordinates'      => array(
+                'minLatitude'  => $minLatitude,
+                'maxLatitude'  => $maxLatitude,
+                'minLongitude' => $minLongitude,
+                'maxLongitude' => $maxLongitude
+            ),
+            'photos'      => $flickr->findPhotos(),
+            'realEstate'  => $assignedRealEstate,
+            'cafes'       => $osm->findCafes(),
+            'hotels'      => $osm->findHotels(),
+            'restaurants' => $osm->findRestaurants(),
+            'shops'       => $osm->findShops()
+        );
+
+        echo PHP_EOL;
     }
 }
 
-$out .= '];';
+$data = array(
+    'cameraModels' => $flickr->cameraModels,
+    'photgraphers' => $flickr->photographers,
+    'squares' => $squares
+);
 
-echo $out . PHP_EOL . PHP_EOL;
-
-$out = 'photos = [';
-
-$row = 0;
-$column = 0;
-foreach ($data['squares'] as $square) {
-    $out .= count($square['photos']);
-
-    if (49 == $column%$nbSquares) {
-        $out .= '; ';
-
-        $column = 0;
-        $row++;
-    } else {
-        $out .= ' ';
-        $column++;
-    }
-}
-
-$out .= '];';
-
-echo $out . PHP_EOL;
+echo 'Writing data to cache file' . PHP_EOL;
+file_put_contents('/tmp/city', serialize($data));

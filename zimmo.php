@@ -31,7 +31,7 @@ class Zimmo
         $nbResults = $this->_getNbResults($xpathOfFirstPage);
         $nbPages = ceil($nbResults/20);
 
-        echo 'Found ' . $nbResults . ' ' . ($nbResults != 1 ? 'properties' : 'property') . ' in ' . $nbPages . ' ' . ($nbPages != 1 ? 'pages' : 'page') . PHP_EOL;
+        echo '  Found ' . $nbResults . ' ' . ($nbResults != 1 ? 'properties' : 'property') . ' in ' . $nbPages . ' ' . ($nbPages != 1 ? 'pages' : 'page') . PHP_EOL;
 
         $houses = [];
         for ($i = 1; $i <= $nbPages; $i++) {
@@ -55,7 +55,7 @@ class Zimmo
 
     private function _getResultPageUrl($postalCode, $cityName, $province, $buyRealEstate, $typeOfRealEstate, $page, $display = true) {
         if ($display)
-            echo '  Processing page ' . $page . PHP_EOL;
+            echo '    Processing page ' . $page . PHP_EOL;
 
         return 'http://www.zimmo.be/nl/?gemeente='
             . $postalCode
