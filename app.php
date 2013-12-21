@@ -67,7 +67,7 @@ if (!file_exists('/tmp/real_estate')) {
                 $zimmo->scrape($postalCode, $cityNames[$postalCode], $province, Zimmo::FOR_SALE, Zimmo::FLATS)
             ),
             'flat_rent'     => array_merge(
-                $realEstate['flat_sale'],
+                $realEstate['flat_rent'],
                 $zimmo->scrape($postalCode, $cityNames[$postalCode], $province, Zimmo::FOR_RENT, Zimmo::FLATS)
             ),
             'house_sale'    => array_merge(
