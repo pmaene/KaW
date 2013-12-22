@@ -205,6 +205,98 @@ function normalise($array, $maxValue) {
                 <h4>Normalised OSM Data</h4>
                 <div id="normalisedOSM" class="map"></div>
             </div>
+            <div class="mapContainer">
+                <h4>Normalised Sale and Rent Data</h4>
+                <div id="normSaleAndRent" class="map"></div>
+            </div>
+            <div class="mapContainer rightMap">
+                <?php  
+                    // Bounding boxes of certain areas in Antwerp
+                    // [minLat, minLon, maxLat, maxLon]
+                    $eilandje =         [   
+                                            'minLat' => 51.228,
+                                            'minLon' => 4.4,
+                                            'maxLat' => 51.24, 
+                                            'maxLon' => 4.42,
+                                            'score' => 8
+                                        ]; // Eilandje is populair
+                    $oldCityCenter =    [
+                                            'minLat' => 51.217, 
+                                            'minLon' => 4.395,
+                                            'maxLat' => 51.222, 
+                                            'maxLon' => 4.405,
+                                            'score' => 10
+                                        ]; // Kathedraal en Groenplaats zijn populair
+                    $seefHoek =         [
+                                            'minLat' => 51.221, 
+                                            'minLon' => 4.420,
+                                            'maxLat' => 51.228, 
+                                            'maxLon' => 4.435,
+                                            'score' => 3
+                                        ]; // Seefhoek is onpopulair
+                    $provincieHuis =    [
+                                            'minLat' => 51.216, 
+                                            'minLon' => 4.433,
+                                            'maxLat' => 51.221,
+                                            'maxLon' => 4.445,
+                                            'score' => 0
+                                        ]; // Regio rond provincie-huis is onpopulair
+                    $tZuid =            [
+                                            'minLat' => 51.212,
+                                            'minLon' => 4.394,
+                                            'maxLat' => 51.217,
+                                            'maxLon' => 4.406,
+                                            'score' => 6
+                                        ]; // Region rond 't Zuid is populair
+                    $regions['eilandje'] = $eilandje;
+                    $regions['oldCityCenter'] = $oldCityCenter;
+                    $regions['seefHoek'] = $seefHoek;
+                    $regions['provincieHuis'] = $provincieHuis;
+                    $regions['tZuid'] = $tZuid;
+                    
+                    // Add all corresponding squares to a region
+                    foreach ($regions as $key => $region) {
+                        $squares = [];
+                        foreach ($data['squares'] as $square) {
+                            if( $square['coordinates']['minLatitude'] >= $region['minLat'] && $square['coordinates']['maxLatitude'] <= $region['maxLat'] && $square['coordinates']['minLongitude'] >= $region['minLon'] && $square['coordinates']['maxLongitude'] <= $region['maxLon'] ) {
+                                $squares[] = $square;
+                            }
+                        }
+                        $regions[$key]['squares'] = $squares;
+                    }
+
+                    
+                    //echo "Calculating regions ...<br>";
+                    foreach ($regions as $key => $region) {
+                        //echo $key . "<br>";
+                        $regions[$key]['nbOfPhotos'] = 0;
+                        $regions[$key]['nbOfCafes'] = 0;
+                        $regions[$key]['nbOfRestaurants'] = 0;
+                        $regions[$key]['nbOfHotels'] = 0;
+                        $regions[$key]['nbOfShops'] = 0;
+                        foreach ($region['squares'] as $square) {
+                            //echo $regions[$key]['nbOfPhotos'] . " number of photos<br>";
+                            $regions[$key]['nbOfPhotos'] += count($square['photos']);
+                            $regions[$key]['nbOfCafes'] += count($square['cafes']);
+                            $regions[$key]['nbOfRestaurants'] += count($square['restaurants']);
+                            $regions[$key]['nbOfHotels'] += count($square['hotels']);
+                            $regions[$key]['nbOfShops'] += count($square['shops']);
+                        }
+                    }
+
+                    
+                    echo "<br>";
+                    foreach ($regions as $key => $region) {
+                        echo "<b>" . $key . "</b> contains: <br>";
+                        echo $region['nbOfPhotos'] . " photos <br>";
+                        echo $region['nbOfCafes'] . " cafes <br>";
+                        echo $region['nbOfRestaurants'] . " restaurants <br>";
+                        echo $region['nbOfHotels'] . " hotels <br>";
+                        echo $region['nbOfShops'] . " shops <br>";
+                        echo "Assigned popularity score of " . $region['score'] . "<br><br><br>";
+                    }
+                ?>
+            </div>
         </div>
 
         <script src="http://openlayers.org/api/OpenLayers.js"></script>
@@ -428,6 +520,17 @@ function normalise($array, $maxValue) {
                     data: <?php echo json_encode($normOSMData); ?>
                 };
                 divName = "normalisedOSM";
+                createMap(testData, divName, 11);
+
+                <?php
+                    $normSaleAndRent = array_merge($normSalePrices, $normRentPrices);
+                ?>
+
+                testData = {
+                    max: 1,
+                    data: <?php echo json_encode($normSaleAndRent); ?>
+                };
+                divName = "normSaleAndRent";
                 createMap(testData, divName, 11);
             }
 
