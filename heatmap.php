@@ -248,6 +248,13 @@ function normalise($array, $maxValue) {
                                             'maxLon' => 4.406,
                                             'score' => 800
                                         ]; // Region rond 't Zuid is populair
+                    $meir =             [
+                                            'minLat' => ,
+                                            'minLon' => ,
+                                            'maxLat' => ,
+                                            'maxLon' => ,
+                                            'score' =>
+                                        ]
                     $regions['eilandje'] = $eilandje;
                     $regions['oldCityCenter'] = $oldCityCenter;
                     $regions['seefHoek'] = $seefHoek;
