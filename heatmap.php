@@ -305,6 +305,48 @@ function normalise($array, $maxValue) {
                         echo "on " . $region['nbOfSquares'] . " squares<br>";
                         echo "Assigned popularity score of " . $region['score'] . "<br><br><br>";
                     }
+
+
+                    $maxNbOfPhotos = 0;
+                    $maxNbOfCafes = 0;
+                    $maxNbOfRestaurants = 0;
+                    $maxNbOfHotels = 0;
+                    $maxNbOfShops = 0;
+                    foreach ($regions as $key => $region) {
+                        if($region['nbOfPhotos'] > $maxNbOfPhotos)
+                            $maxNbOfPhotos = $region['nbOfPhotos'];
+                        if($region['nbOfCafes'] > $maxNbOfCafes)
+                            $maxNbOfCafes = $region['nbOfCafes'];
+                        if($region['nbOfRestaurants'] > $maxNbOfRestaurants)
+                            $maxNbOfRestaurants = $region['nbOfRestaurants'];
+                        if($region['nbOfHotels'] > $maxNbOfHotels)
+                            $maxNbOfHotels = $region['nbOfHotels'];
+                        if($region['nbOfShops'] > $maxNbOfShops)
+                            $maxNbOfShops = $region['nbOfShops'];
+                        
+                    }
+
+                    /*
+                    echo "<br><br> <b>Matlab variables:</b>";
+                    
+                    echo "<br>d=[";
+                    foreach ($regions as $key => $region) {
+                        echo " " . $region['score'] . ";";
+                    }
+                    echo " ];";
+
+                    echo "C=[";*/
+                    foreach ($regions as $key => $region) {
+                        //echo " " . $region['nbOfPhotos']/$maxNbOfPhotos . " " . $region['nbOfCafes']/$maxNbOfCafes . " " . $region['nbOfRestaurants']/$maxNbOfRestaurants . " " . $region['nbOfHotels']/$maxNbOfHotels . " " . $region['nbOfShops']/$maxNbOfShops . ";";
+                        //echo " " . $region['nbOfPhotos']/$maxNbOfPhotos . " " . $region['nbOfCafes']/$maxNbOfCafes . " " . $region['nbOfRestaurants']/$maxNbOfRestaurants . " " . $region['nbOfShops']/$maxNbOfShops . ";";
+                        $regions[$key]['calculatedScore'] = ($region['nbOfPhotos']/$maxNbOfPhotos+$region['nbOfCafes']/$maxNbOfCafes*2/5+$region['nbOfRestaurants']/$maxNbOfRestaurants*3/5+$region['nbOfHotels']/$maxNbOfHotels*1/5+$region['nbOfShops']/$maxNbOfShops*4/5)*33.33333;
+                    }
+                    //echo "];<br><br>";
+
+                    foreach ($regions as $key => $region) {
+                        echo "<b>" . $key . "</b> has a calculated score of " . $region['calculatedScore'] . "<br>";
+                        echo "while the assigned score was " . $region['score'] . "<br><br>";                        
+                    }
                 ?>
             </div>
         </div>
