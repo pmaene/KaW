@@ -218,35 +218,35 @@ function normalise($array, $maxValue) {
                                             'minLon' => 4.4,
                                             'maxLat' => 51.24, 
                                             'maxLon' => 4.42,
-                                            'score' => 8
+                                            'score' => 600
                                         ]; // Eilandje is populair
                     $oldCityCenter =    [
                                             'minLat' => 51.217, 
                                             'minLon' => 4.395,
                                             'maxLat' => 51.222, 
                                             'maxLon' => 4.405,
-                                            'score' => 10
+                                            'score' => 1000
                                         ]; // Kathedraal en Groenplaats zijn populair
                     $seefHoek =         [
                                             'minLat' => 51.221, 
                                             'minLon' => 4.420,
                                             'maxLat' => 51.228, 
                                             'maxLon' => 4.435,
-                                            'score' => 3
+                                            'score' => 300
                                         ]; // Seefhoek is onpopulair
                     $provincieHuis =    [
                                             'minLat' => 51.216, 
                                             'minLon' => 4.433,
                                             'maxLat' => 51.221,
                                             'maxLon' => 4.445,
-                                            'score' => 0
+                                            'score' => 100
                                         ]; // Regio rond provincie-huis is onpopulair
                     $tZuid =            [
                                             'minLat' => 51.212,
                                             'minLon' => 4.394,
                                             'maxLat' => 51.217,
                                             'maxLon' => 4.406,
-                                            'score' => 6
+                                            'score' => 800
                                         ]; // Region rond 't Zuid is populair
                     $regions['eilandje'] = $eilandje;
                     $regions['oldCityCenter'] = $oldCityCenter;
@@ -274,6 +274,7 @@ function normalise($array, $maxValue) {
                         $regions[$key]['nbOfRestaurants'] = 0;
                         $regions[$key]['nbOfHotels'] = 0;
                         $regions[$key]['nbOfShops'] = 0;
+                        $regions[$key]['nbOfSquares'] = 0;
                         foreach ($region['squares'] as $square) {
                             //echo $regions[$key]['nbOfPhotos'] . " number of photos<br>";
                             $regions[$key]['nbOfPhotos'] += count($square['photos']);
@@ -281,18 +282,27 @@ function normalise($array, $maxValue) {
                             $regions[$key]['nbOfRestaurants'] += count($square['restaurants']);
                             $regions[$key]['nbOfHotels'] += count($square['hotels']);
                             $regions[$key]['nbOfShops'] += count($square['shops']);
+                            $regions[$key]['nbOfSquares'] += 1;
                         }
                     }
 
+                    foreach ($regions as $key => $region) {
+                        $regions[$key]['nbOfPhotos'] = $regions[$key]['nbOfPhotos']/$regions[$key]['nbOfSquares'];
+                        $regions[$key]['nbOfCafes'] = $regions[$key]['nbOfCafes']/$regions[$key]['nbOfSquares'];
+                        $regions[$key]['nbOfRestaurants'] = $regions[$key]['nbOfRestaurants']/$regions[$key]['nbOfSquares'];
+                        $regions[$key]['nbOfHotels'] = $regions[$key]['nbOfHotels']/$regions[$key]['nbOfSquares'];
+                        $regions[$key]['nbOfShops'] = $regions[$key]['nbOfShops']/$regions[$key]['nbOfSquares'];
+                    }
                     
                     echo "<br>";
                     foreach ($regions as $key => $region) {
                         echo "<b>" . $key . "</b> contains: <br>";
-                        echo $region['nbOfPhotos'] . " photos <br>";
-                        echo $region['nbOfCafes'] . " cafes <br>";
-                        echo $region['nbOfRestaurants'] . " restaurants <br>";
-                        echo $region['nbOfHotels'] . " hotels <br>";
-                        echo $region['nbOfShops'] . " shops <br>";
+                        echo $region['nbOfPhotos'] . " photos per square <br>";
+                        echo $region['nbOfCafes'] . " cafes per square <br>";
+                        echo $region['nbOfRestaurants'] . " restaurants per square <br>";
+                        echo $region['nbOfHotels'] . " hotels per square <br>";
+                        echo $region['nbOfShops'] . " shops per square <br>";
+                        echo "on " . $region['nbOfSquares'] . " squares<br>";
                         echo "Assigned popularity score of " . $region['score'] . "<br><br><br>";
                     }
                 ?>
