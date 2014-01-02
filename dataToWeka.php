@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 const RENT = "rent";
 const SALE = "sale";
@@ -11,19 +11,16 @@ const SHOP = "shops";
 const CAFE = "cafes";
 
 $data = unserialize(file_get_contents('/tmp/city'));
-$targetfilename = "realestate.arff";
+$targetfilename = "realEstate.arff";
 
 unlink($targetfilename);
 $thandle = fopen("./" . $targetfilename, "w");
 
-
-
-
-$line = <<<EOD
+$line = <<<EOF
 % 1. Title: Real estate database of Antwerp
-% 
+%
 @RELATION realEstateAntwerp
- 
+
 @ATTRIBUTE nbOfPhotos  			NUMERIC
 @ATTRIBUTE nbOfHotels   		NUMERIC
 @ATTRIBUTE nbOfCafes  			NUMERIC
@@ -35,18 +32,9 @@ $line = <<<EOD
 @DATA
 
 
-EOD;
+EOF;
 
 fwrite($thandle, $line);
-
-/*foreach ($data['squares'] as $square) {
-	$totalNormPrice = 0;
-	foreach ($square['realEstate'][$typeOfBuilding][$rentOrSale] as $houseForSale)
-            $totalNormPrice = $totalNormPrice + $houseForSale['normalisedPrice'];
-
-        $nbOfHousesForSale = count($square['realEstate'][$typeOfBuilding][$rentOrSale]);
-	$square['realEstate'] = 
-}*/
 
 $result = [];
 $maxNormFlatSalePrice = 0;
@@ -55,6 +43,7 @@ $maxNormBusinessSalePrice = 0;
 $maxNormFlatRentPrice = 0;
 $maxNormHouseRentPrice = 0;
 $maxNormBusinessRentPrice = 0;
+
 foreach ($data['squares'] as $square) {
    	$normPrices = [];
 
@@ -64,31 +53,31 @@ foreach ($data['squares'] as $square) {
     $normPrices['normFlatRentPrice'] = getNormalisedPrice(FLAT, RENT, $square);
     $normPrices['normHouseRentPrice'] = getNormalisedPrice(HOUSE, RENT, $square);
     $normPrices['normBusinessRentPrice'] = getNormalisedPrice(BUSINESS, RENT, $square);
-    
+
     $normPrices['nbOfPhotos'] = count($square['photos']);
     $normPrices['nbOfCafes'] = count($square['cafes']);
     $normPrices['nbOfRestaurants'] = count($square['restaurants']);
     $normPrices['nbOfHotels'] = count($square['hotels']);
     $normPrices['nbOfShops'] = count($square['shops']);
 
-    if($normPrices['normFlatSalePrice'] > $maxNormFlatSalePrice)
+    if ($normPrices['normFlatSalePrice'] > $maxNormFlatSalePrice)
     	$maxNormFlatSalePrice = $normPrices['normFlatSalePrice'];
 
-    if($normPrices['normHouseSalePrice'] > $maxNormHouseSalePrice)
+    if ($normPrices['normHouseSalePrice'] > $maxNormHouseSalePrice)
     	$maxNormHouseSalePrice = $normPrices['normHouseSalePrice'];
-    
-    if($normPrices['normBusinessSalePrice'] > $maxNormBusinessSalePrice)
+
+    if ($normPrices['normBusinessSalePrice'] > $maxNormBusinessSalePrice)
     	$maxNormBusinessSalePrice = $normPrices['normBusinessSalePrice'];
-    
-    if($normPrices['normFlatRentPrice'] > $maxNormFlatRentPrice)
+
+    if ($normPrices['normFlatRentPrice'] > $maxNormFlatRentPrice)
     	$maxNormFlatRentPrice = $normPrices['normFlatRentPrice'];
 
-    if($normPrices['normHouseRentPrice'] > $maxNormHouseRentPrice)
+    if ($normPrices['normHouseRentPrice'] > $maxNormHouseRentPrice)
     	$maxNormHouseRentPrice = $normPrices['normHouseRentPrice'];
 
-    if($normPrices['normBusinessRentPrice'] > $maxNormBusinessRentPrice)
+    if ($normPrices['normBusinessRentPrice'] > $maxNormBusinessRentPrice)
     	$maxNormBusinessRentPrice = $normPrices['normBusinessRentPrice'];
-    
+
     $result[] = $normPrices;
 }
 
@@ -97,29 +86,26 @@ foreach ($result as $key => $square) {
 	$result[$key]['normHouseSalePrice'] = $square['normHouseSalePrice']/$maxNormHouseSalePrice;
 	$result[$key]['normBusinessSalePrice'] = $square['normBusinessSalePrice']/$maxNormBusinessSalePrice;
 	$result[$key]['normFlatRentPrice'] = $square['normFlatRentPrice']/$maxNormFlatRentPrice;
-	//$square['normHouseRentPrice'] = $square['normHouseRentPrice']/$maxNormHouseRentPrice; this is zero
+	//$square[$key]['normHouseRentPrice'] = $square['normHouseRentPrice']/$maxNormHouseRentPrice;
 	$result[$key]['normBusinessRentPrice'] = $square['normBusinessRentPrice']/$maxNormBusinessRentPrice;
 	$result[$key]['normSalePrice'] = $result[$key]['normFlatSalePrice'] + $result[$key]['normHouseSalePrice'] + $result[$key]['normBusinessSalePrice'];
 	$result[$key]['normRentPrice'] = $result[$key]['normFlatRentPrice'] + $result[$key]['normHouseRentPrice'] + $result[$key]['normBusinessRentPrice'];
 }
-
-
 
 foreach ($result as $square) {
 	$line = $line = $square['nbOfPhotos'] . "," . $square['nbOfHotels'] . "," . $square['nbOfCafes'] . "," . $square['nbOfRestaurants'] . "," . $square['nbOfShops'] . "," . $square['normSalePrice'] . "," . $square['normRentPrice'] . PHP_EOL;;
 	fwrite($thandle, $line);
 }
 
-
 function getNormalisedPrice($typeOfBuilding, $rentOrSale, $square) {
 	$normPrice = 0;
-	foreach ($square['realEstate'][$typeOfBuilding][$rentOrSale] as $realEstate) {
+	foreach ($square['realEstate'][$typeOfBuilding][$rentOrSale] as $realEstate)
             $normPrice = $normPrice + $realEstate['normalisedPrice'];
-        }
-        if(count($square['realEstate'][$typeOfBuilding][$rentOrSale]) != 0)
-        	return $normPrice/count($square['realEstate'][$typeOfBuilding][$rentOrSale]);
-        else
-        	return 0;
+
+    if (count($square['realEstate'][$typeOfBuilding][$rentOrSale]) != 0)
+    	return $normPrice/count($square['realEstate'][$typeOfBuilding][$rentOrSale]);
+
+   	return 0;
 }
 
 function getMax($keyName, $arr) {
@@ -130,5 +116,3 @@ function getMax($keyName, $arr) {
 	}
 	return $maxValue;
 }
-
-?>
