@@ -116,7 +116,7 @@ $column = 0;
 foreach ($result as $square) {
     $out .= $square['normSalePrice'];
 
-    if (49 == $column%$nbSquares) {
+    if (($nbSquares-1) == $column%$nbSquares) {
         $out .= '; ';
 
         $column = 0;
@@ -137,7 +137,7 @@ $column = 0;
 foreach ($result as $square) {
     $out .= $square['popularity'];
 
-    if (49 == $column%$nbSquares) {
+    if (($nbSquares-1) == $column%$nbSquares) {
         $out .= '; ';
 
         $column = 0;
@@ -217,7 +217,7 @@ $column = 0;
 foreach ($result as $square) {
     $out .= $square['normSalePrice'];
 
-    if (49 == $column%$nbSquares) {
+    if (($nbSquares-1) == $column%$nbSquares) {
         $out .= '; ';
 
         $column = 0;
@@ -238,7 +238,7 @@ $column = 0;
 foreach ($result as $square) {
     $out .= $square['popularity'];
 
-    if (49 == $column%$nbSquares) {
+    if (($nbSquares-1) == $column%$nbSquares) {
         $out .= '; ';
 
         $column = 0;
