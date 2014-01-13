@@ -103,7 +103,7 @@ foreach ($result as $key => $square) {
     $result[$key]['nbOfRestaurants'] = $square['nbOfRestaurants']/$maxNbOfRestaurants;
     $result[$key]['nbOfShops'] = $square['nbOfShops']/$maxNbOfShops;
 
-    $result[$key]['popularity'] = $result[$key]['nbOfPhotos'] + $result[$key]['nbOfHotels'] + $result[$key]['nbOfCafes'] + $result[$key]['nbOfRestaurants'] + $result[$key]['nbOfShops'];
+    $result[$key]['popularity'] = 5/2*($result[$key]['nbOfPhotos']) + 5/4*($result[$key]['nbOfHotels'] + $result[$key]['nbOfCafes'] + $result[$key]['nbOfRestaurants'] + $result[$key]['nbOfShops']);
 }
 
 $maxNormSalePrice = $maxNormFlatSalePrice + $maxNormHouseSalePrice + $maxNormBusinessSalePrice;
@@ -162,7 +162,7 @@ for ($i = 0; $i < count($result); $i++) {
     $randomResult[$i]['nbOfRestaurants'] = mt_rand(0, $maxNbOfRestaurants);
     $randomResult[$i]['nbOfShops'] = mt_rand(0, $maxNbOfShops);
 
-    $randomResult[$i]['popularity'] = $randomResult[$i]['nbOfPhotos'] + $randomResult[$i]['nbOfHotels'] + $randomResult[$i]['nbOfCafes'] + $randomResult[$i]['nbOfRestaurants'] + $randomResult[$i]['nbOfShops'];
+    $randomResult[$i]['popularity'] = 5/2*($randomResult[$i]['nbOfPhotos']) + 5/4*($randomResult[$i]['nbOfHotels'] + $randomResult[$i]['nbOfCafes'] + $randomResult[$i]['nbOfRestaurants'] + $randomResult[$i]['nbOfShops']);
 }
 
 $maxNormSalePrice = 0;
