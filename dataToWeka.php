@@ -1,20 +1,20 @@
 <?php
 
-const RENT = "rent";
-const SALE = "sale";
-const FLAT = "flat";
-const HOUSE = "house";
-const BUSINESS = "business";
-const RESTAURANT = "restaurants";
-const HOTEL = "hotels";
-const SHOP = "shops";
-const CAFE = "cafes";
+const RENT = 'rent';
+const SALE = 'sale';
+const FLAT = 'flat';
+const HOUSE = 'house';
+const BUSINESS = 'business';
+const RESTAURANT = 'restaurants';
+const HOTEL = 'hotels';
+const SHOP = 'shops';
+const CAFE = 'cafes';
 
 $data = unserialize(file_get_contents('/tmp/city'));
-$targetfilename = "realEstate.arff";
+$targetFile = 'realEstate.arff';
 
-unlink($targetfilename);
-$thandle = fopen("./" . $targetfilename, "w");
+unlink($targetFile);
+$handle = fopen('./' . $targetFile, 'w');
 
 $line = <<<EOF
 % 1. Title: Real estate database of Antwerp
@@ -34,7 +34,7 @@ $line = <<<EOF
 
 EOF;
 
-fwrite($thandle, $line);
+fwrite($handle, $line);
 
 $result = [];
 $maxNormFlatSalePrice = 0;
@@ -93,8 +93,8 @@ foreach ($result as $key => $square) {
 }
 
 foreach ($result as $square) {
-	$line = $line = $square['nbOfPhotos'] . "," . $square['nbOfHotels'] . "," . $square['nbOfCafes'] . "," . $square['nbOfRestaurants'] . "," . $square['nbOfShops'] . "," . $square['normSalePrice'] . "," . $square['normRentPrice'] . PHP_EOL;;
-	fwrite($thandle, $line);
+	$line = $line = $square['nbOfPhotos'] . ',' . $square['nbOfHotels'] . ',' . $square['nbOfCafes'] . ',' . $square['nbOfRestaurants'] . ',' . $square['nbOfShops'] . ',' . $square['normSalePrice'] . ',' . $square['normRentPrice'] . PHP_EOL;
+	fwrite($handle, $line);
 }
 
 function getNormalisedPrice($typeOfBuilding, $rentOrSale, $square) {
