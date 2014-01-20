@@ -26,6 +26,7 @@ $line = <<<EOF
 @ATTRIBUTE nbOfCafes  			NUMERIC
 @ATTRIBUTE nbOfRestaurants		NUMERIC
 @ATTRIBUTE nbOfShops			NUMERIC
+@ATTRIBUTE popularity           NUMERIC
 @ATTRIBUTE normSalePrice		NUMERIC
 @ATTRIBUTE normRentPrice		NUMERIC
 
@@ -37,6 +38,7 @@ EOF;
 fwrite($handle, $line);
 
 $result = [];
+
 $maxNormFlatSalePrice = 0;
 $maxNormHouseSalePrice = 0;
 $maxNormBusinessSalePrice = 0;
@@ -44,41 +46,62 @@ $maxNormFlatRentPrice = 0;
 $maxNormHouseRentPrice = 0;
 $maxNormBusinessRentPrice = 0;
 
+$maxNbOfPhotos = 0;
+$maxNbOfCafes = 0;
+$maxNbOfRestaurants = 0;
+$maxNbOfHotels = 0;
+$maxNbOfShops = 0;
+
 foreach ($data['squares'] as $square) {
-   	$normPrices = [];
+   	$squareResult = [];
 
-    $normPrices['normFlatSalePrice'] = getNormalisedPrice(FLAT, SALE, $square);
-    $normPrices['normHouseSalePrice'] = getNormalisedPrice(HOUSE, SALE, $square);
-    $normPrices['normBusinessSalePrice'] = getNormalisedPrice(BUSINESS, SALE, $square);
-    $normPrices['normFlatRentPrice'] = getNormalisedPrice(FLAT, RENT, $square);
-    $normPrices['normHouseRentPrice'] = getNormalisedPrice(HOUSE, RENT, $square);
-    $normPrices['normBusinessRentPrice'] = getNormalisedPrice(BUSINESS, RENT, $square);
+    $squareResult['normFlatSalePrice'] = getNormalisedPrice(FLAT, SALE, $square);
+    $squareResult['normHouseSalePrice'] = getNormalisedPrice(HOUSE, SALE, $square);
+    $squareResult['normBusinessSalePrice'] = getNormalisedPrice(BUSINESS, SALE, $square);
+    $squareResult['normFlatRentPrice'] = getNormalisedPrice(FLAT, RENT, $square);
+    $squareResult['normHouseRentPrice'] = getNormalisedPrice(HOUSE, RENT, $square);
+    $squareResult['normBusinessRentPrice'] = getNormalisedPrice(BUSINESS, RENT, $square);
 
-    $normPrices['nbOfPhotos'] = count($square['photos']);
-    $normPrices['nbOfCafes'] = count($square['cafes']);
-    $normPrices['nbOfRestaurants'] = count($square['restaurants']);
-    $normPrices['nbOfHotels'] = count($square['hotels']);
-    $normPrices['nbOfShops'] = count($square['shops']);
+    $squareResult['nbOfPhotos'] = count($square['photos']);
+    $squareResult['nbOfCafes'] = count($square['cafes']);
+    $squareResult['nbOfRestaurants'] = count($square['restaurants']);
+    $squareResult['nbOfHotels'] = count($square['hotels']);
+    $squareResult['nbOfShops'] = count($square['shops']);
 
-    if ($normPrices['normFlatSalePrice'] > $maxNormFlatSalePrice)
-    	$maxNormFlatSalePrice = $normPrices['normFlatSalePrice'];
+    if ($squareResult['normFlatSalePrice'] > $maxNormFlatSalePrice)
+    	$maxNormFlatSalePrice = $squareResult['normFlatSalePrice'];
 
-    if ($normPrices['normHouseSalePrice'] > $maxNormHouseSalePrice)
-    	$maxNormHouseSalePrice = $normPrices['normHouseSalePrice'];
+    if ($squareResult['normHouseSalePrice'] > $maxNormHouseSalePrice)
+    	$maxNormHouseSalePrice = $squareResult['normHouseSalePrice'];
 
-    if ($normPrices['normBusinessSalePrice'] > $maxNormBusinessSalePrice)
-    	$maxNormBusinessSalePrice = $normPrices['normBusinessSalePrice'];
+    if ($squareResult['normBusinessSalePrice'] > $maxNormBusinessSalePrice)
+    	$maxNormBusinessSalePrice = $squareResult['normBusinessSalePrice'];
 
-    if ($normPrices['normFlatRentPrice'] > $maxNormFlatRentPrice)
-    	$maxNormFlatRentPrice = $normPrices['normFlatRentPrice'];
+    if ($squareResult['normFlatRentPrice'] > $maxNormFlatRentPrice)
+    	$maxNormFlatRentPrice = $squareResult['normFlatRentPrice'];
 
-    if ($normPrices['normHouseRentPrice'] > $maxNormHouseRentPrice)
-    	$maxNormHouseRentPrice = $normPrices['normHouseRentPrice'];
+    if ($squareResult['normHouseRentPrice'] > $maxNormHouseRentPrice)
+    	$maxNormHouseRentPrice = $squareResult['normHouseRentPrice'];
 
-    if ($normPrices['normBusinessRentPrice'] > $maxNormBusinessRentPrice)
-    	$maxNormBusinessRentPrice = $normPrices['normBusinessRentPrice'];
+    if ($squareResult['normBusinessRentPrice'] > $maxNormBusinessRentPrice)
+    	$maxNormBusinessRentPrice = $squareResult['normBusinessRentPrice'];
 
-    $result[] = $normPrices;
+    if ($squareResult['nbOfPhotos'] > $maxNbOfPhotos)
+        $maxNbOfPhotos = $squareResult['nbOfPhotos'];
+
+    if ($squareResult['nbOfCafes'] > $maxNbOfCafes)
+        $maxNbOfCafes = $squareResult['nbOfCafes'];
+
+    if ($squareResult['nbOfRestaurants'] > $maxNbOfRestaurants)
+        $maxNbOfRestaurants = $squareResult['nbOfRestaurants'];
+
+    if ($squareResult['nbOfHotels'] > $maxNbOfHotels)
+        $maxNbOfHotels = $squareResult['nbOfHotels'];
+
+    if ($squareResult['nbOfShops'] > $maxNbOfShops)
+        $maxNbOfShops = $squareResult['nbOfShops'];
+
+    $result[] = $squareResult;
 }
 
 foreach ($result as $key => $square) {
@@ -88,12 +111,14 @@ foreach ($result as $key => $square) {
 	$result[$key]['normFlatRentPrice'] = $square['normFlatRentPrice']/$maxNormFlatRentPrice;
 	//$square[$key]['normHouseRentPrice'] = $square['normHouseRentPrice']/$maxNormHouseRentPrice;
 	$result[$key]['normBusinessRentPrice'] = $square['normBusinessRentPrice']/$maxNormBusinessRentPrice;
+
 	$result[$key]['normSalePrice'] = $result[$key]['normFlatSalePrice'] + $result[$key]['normHouseSalePrice'] + $result[$key]['normBusinessSalePrice'];
 	$result[$key]['normRentPrice'] = $result[$key]['normFlatRentPrice'] + $result[$key]['normHouseRentPrice'] + $result[$key]['normBusinessRentPrice'];
 }
 
 foreach ($result as $square) {
-	$line = $line = $square['nbOfPhotos'] . ',' . $square['nbOfHotels'] . ',' . $square['nbOfCafes'] . ',' . $square['nbOfRestaurants'] . ',' . $square['nbOfShops'] . ',' . $square['normSalePrice'] . ',' . $square['normRentPrice'] . PHP_EOL;
+    $popularity = 1/2*($square['nbOfPhotos']/$maxNbOfPhotos) + 1/8*($square['nbOfHotels']/$maxNbOfHotels + $square['nbOfCafes']/$maxNbOfCafes + $square['nbOfRestaurants']/$maxNbOfRestaurants + $square['nbOfShops']/$maxNbOfShops);
+	$line = $line = $square['nbOfPhotos'] . ',' . $square['nbOfHotels'] . ',' . $square['nbOfCafes'] . ',' . $square['nbOfRestaurants'] . ',' . $square['nbOfShops'] . ',' . $popularity . ',' . $square['normSalePrice'] . ',' . $square['normRentPrice'] . PHP_EOL;
 	fwrite($handle, $line);
 }
 

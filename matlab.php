@@ -195,6 +195,7 @@ foreach ($randomResult as $square) {
         $maxNbOfShops = $square['nbOfShops'];
 }
 
+$total = 0;
 foreach ($randomResult as $key => $square) {
     $result[$key]['normSalePrice'] = $square['normSalePrice']/$maxNormSalePrice;
     $result[$key]['normRentPrice'] = $square['normRentPrice']/$maxNormRentPrice;
@@ -204,6 +205,8 @@ foreach ($randomResult as $key => $square) {
     $result[$key]['nbOfCafes'] = $square['nbOfPhotos']/$maxNbOfCafes;
     $result[$key]['nbOfRestaurants'] = $square['nbOfPhotos']/$maxNbOfRestaurants;
     $result[$key]['nbOfShops'] = $square['nbOfPhotos']/$maxNbOfShops;
+
+    $total += $square['nbOfPhotos'];
 
     $result[$key]['popularity'] = 1/2*($square['nbOfPhotos']/$maxNbOfPhotos) + 1/8*($square['nbOfHotels']/$maxNbOfHotels + $square['nbOfCafes']/$maxNbOfCafes + $square['nbOfRestaurants']/$maxNbOfRestaurants + $square['nbOfShops']/$maxNbOfShops);
 }
@@ -249,6 +252,10 @@ foreach ($result as $square) {
 
 $out .= '];';
 echo $out . PHP_EOL;
+
+echo PHP_EOL;
+
+var_dump($total/count($data['squares']));
 
 function getNormalisedPrice($typeOfBuilding, $rentOrSale, $square) {
     $normPrice = 0;
