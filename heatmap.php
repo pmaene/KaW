@@ -210,6 +210,9 @@ function normalise($array, $maxValue) {
                 <div id="normSaleAndRent" class="map"></div>
             </div>
             <div class="mapContainer rightMap">
+                <h4>Popularity Scores</h4>
+                <div id="popularityScore" class="map"></div>
+            </div>
                 <?php  
                     // Bounding boxes of certain areas in Antwerp
                     // [minLat, minLon, maxLat, maxLon]
@@ -249,17 +252,18 @@ function normalise($array, $maxValue) {
                                             'score' => 800
                                         ]; // Region rond 't Zuid is populair
                     $meir =             [
-                                            'minLat' => ,
-                                            'minLon' => ,
-                                            'maxLat' => ,
-                                            'maxLon' => ,
-                                            'score' =>
-                                        ]
+                                            'minLat' => 51.216,
+                                            'minLon' => 4.406,
+                                            'maxLat' => 51.220,
+                                            'maxLon' => 4.415,
+                                            'score' => 600
+                                        ];
                     $regions['eilandje'] = $eilandje;
                     $regions['oldCityCenter'] = $oldCityCenter;
                     $regions['seefHoek'] = $seefHoek;
                     $regions['provincieHuis'] = $provincieHuis;
                     $regions['tZuid'] = $tZuid;
+                    //$regions['meir'] = $meir;
                     
                     // Add all corresponding squares to a region
                     foreach ($regions as $key => $region) {
@@ -292,26 +296,16 @@ function normalise($array, $maxValue) {
                             $regions[$key]['nbOfSquares'] += 1;
                         }
                     }
-
+                    /*
                     foreach ($regions as $key => $region) {
                         $regions[$key]['nbOfPhotos'] = $regions[$key]['nbOfPhotos']/$regions[$key]['nbOfSquares'];
                         $regions[$key]['nbOfCafes'] = $regions[$key]['nbOfCafes']/$regions[$key]['nbOfSquares'];
                         $regions[$key]['nbOfRestaurants'] = $regions[$key]['nbOfRestaurants']/$regions[$key]['nbOfSquares'];
                         $regions[$key]['nbOfHotels'] = $regions[$key]['nbOfHotels']/$regions[$key]['nbOfSquares'];
                         $regions[$key]['nbOfShops'] = $regions[$key]['nbOfShops']/$regions[$key]['nbOfSquares'];
-                    }
+                    }*/
                     
-                    echo "<br>";
-                    foreach ($regions as $key => $region) {
-                        echo "<b>" . $key . "</b> contains: <br>";
-                        echo $region['nbOfPhotos'] . " photos per square <br>";
-                        echo $region['nbOfCafes'] . " cafes per square <br>";
-                        echo $region['nbOfRestaurants'] . " restaurants per square <br>";
-                        echo $region['nbOfHotels'] . " hotels per square <br>";
-                        echo $region['nbOfShops'] . " shops per square <br>";
-                        echo "on " . $region['nbOfSquares'] . " squares<br>";
-                        echo "Assigned popularity score of " . $region['score'] . "<br><br><br>";
-                    }
+                    
 
 
                     $maxNbOfPhotos = 0;
@@ -333,6 +327,17 @@ function normalise($array, $maxValue) {
                         
                     }
 
+                    echo "<br>";
+                    foreach ($regions as $key => $region) {
+                        echo "<b>" . $key . "</b> contains: <br>";
+                        echo $region['nbOfPhotos'] . " photos per square <br>";
+                        echo $region['nbOfCafes'] . " cafes per square <br>";
+                        echo $region['nbOfRestaurants'] . " restaurants per square <br>";
+                        echo $region['nbOfHotels'] . " hotels per square <br>";
+                        echo $region['nbOfShops'] . " shops per square <br>";
+                        echo "on " . $region['nbOfSquares'] . " squares<br>";
+                        echo "Assigned popularity score of " . $region['score'] . "<br><br><br>";
+                    }
                     /*
                     echo "<br><br> <b>Matlab variables:</b>";
                     
@@ -346,7 +351,14 @@ function normalise($array, $maxValue) {
                     foreach ($regions as $key => $region) {
                         //echo " " . $region['nbOfPhotos']/$maxNbOfPhotos . " " . $region['nbOfCafes']/$maxNbOfCafes . " " . $region['nbOfRestaurants']/$maxNbOfRestaurants . " " . $region['nbOfHotels']/$maxNbOfHotels . " " . $region['nbOfShops']/$maxNbOfShops . ";";
                         //echo " " . $region['nbOfPhotos']/$maxNbOfPhotos . " " . $region['nbOfCafes']/$maxNbOfCafes . " " . $region['nbOfRestaurants']/$maxNbOfRestaurants . " " . $region['nbOfShops']/$maxNbOfShops . ";";
-                        $regions[$key]['calculatedScore'] = ($region['nbOfPhotos']/$maxNbOfPhotos+$region['nbOfCafes']/$maxNbOfCafes*2/5+$region['nbOfRestaurants']/$maxNbOfRestaurants*3/5+$region['nbOfHotels']/$maxNbOfHotels*1/5+$region['nbOfShops']/$maxNbOfShops*4/5)*33.33333;
+                        $regions[$key]['calculatedScore'] = 1/2*$region['nbOfPhotos']/$maxNbOfPhotos+1/8*($region['nbOfCafes']/$maxNbOfCafes+$region['nbOfRestaurants']/$maxNbOfRestaurants+$region['nbOfHotels']/$maxNbOfHotels+$region['nbOfShops']/$maxNbOfShops);
+                        if($key == "oldCityCenter") {
+                            $temp1 = 1/2*$region['nbOfPhotos']/$maxNbOfPhotos;
+                            $temp2 = 1/4*$region['nbOfCafes']/$maxNbOfCafes;
+                            $temp3 = 1/4*$region['nbOfRestaurants']/$maxNbOfRestaurants;
+                            $temp4 = 1/4*$region['nbOfHotels']/$maxNbOfHotels;
+                            $temp5 = 1/4*$region['nbOfShops']/$maxNbOfShops;
+                        }
                     }
                     //echo "];<br><br>";
 
@@ -354,8 +366,9 @@ function normalise($array, $maxValue) {
                         echo "<b>" . $key . "</b> has a calculated score of " . $region['calculatedScore'] . "<br>";
                         echo "while the assigned score was " . $region['score'] . "<br><br>";                        
                     }
+
+                    echo "<br><br><br>TEMP1 = " . $temp1 . "<br>TEMP2 = " . $temp2 . "<br>TEMP3 = " . $temp3 . "<br>TEMP4 = " . $temp4 . "<br>nbOfShops:" . $regions["oldCityCenter"]["nbOfShops"] . "<br>maxNbOfShops" . $maxNbOfShops;
                 ?>
-            </div>
         </div>
 
         <script src="http://openlayers.org/api/OpenLayers.js"></script>
@@ -591,6 +604,23 @@ function normalise($array, $maxValue) {
                 };
                 divName = "normSaleAndRent";
                 createMap(testData, divName, 11);
+
+                <?php
+                    $nbOfShops = normalise($nbOfShops, 8);
+                    $nbOfCafes = normalise($nbOfCafes, 8);
+                    $nbOfRestaurants = normalise($nbOfRestaurants, 8);
+                    $nbOfHotels = normalise($nbOfHotels, 8);
+                    $nbOfPhotos = normalise(json_decode($nbOfPhotos), $maxNbOfPhotos*2);
+                    $normOSMData = array_merge($nbOfShops, $nbOfCafes, $nbOfRestaurants, $nbOfHotels, $nbOfPhotos);
+                ?>
+
+                testData = {
+                    max: <?php echo getMaxCountOf(json_encode($normOSMData)); ?>,
+                    data: <?php echo json_encode($normOSMData); ?>
+                };
+                divName = "popularityScore";
+                createMap(testData, divName, 15);
+
             }
 
             window.onload = function(){
