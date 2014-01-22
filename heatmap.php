@@ -31,6 +31,16 @@ function getNormalisedPrices($typeOfBuilding, $rentOrSale) {
     return json_encode($data_js);
 }
 
+function getNbOfRealEstate($typeOfBuilding, $rentOrSale) {
+    global $data;
+    $nbOfRealEstate = 0;
+    foreach ($data['squares'] as $square) {
+        $nbOfRealEstate = $nbOfRealEstate + count($square['realEstate'][$typeOfBuilding][$rentOrSale]);
+    }
+
+    return $nbOfRealEstate;
+}
+
 function getNbOfPhotos() {
     global $data;
     $data_js = [];
@@ -213,6 +223,7 @@ function normalise($array, $maxValue) {
                 <h4>Popularity Scores</h4>
                 <div id="popularityScore" class="map"></div>
             </div>
+            <div class="mapContainer">
                 <?php  
                     // Bounding boxes of certain areas in Antwerp
                     // [minLat, minLon, maxLat, maxLon]
@@ -351,7 +362,7 @@ function normalise($array, $maxValue) {
                     foreach ($regions as $key => $region) {
                         //echo " " . $region['nbOfPhotos']/$maxNbOfPhotos . " " . $region['nbOfCafes']/$maxNbOfCafes . " " . $region['nbOfRestaurants']/$maxNbOfRestaurants . " " . $region['nbOfHotels']/$maxNbOfHotels . " " . $region['nbOfShops']/$maxNbOfShops . ";";
                         //echo " " . $region['nbOfPhotos']/$maxNbOfPhotos . " " . $region['nbOfCafes']/$maxNbOfCafes . " " . $region['nbOfRestaurants']/$maxNbOfRestaurants . " " . $region['nbOfShops']/$maxNbOfShops . ";";
-                        $regions[$key]['calculatedScore'] = 1/2*$region['nbOfPhotos']/$maxNbOfPhotos+1/8*($region['nbOfCafes']/$maxNbOfCafes+$region['nbOfRestaurants']/$maxNbOfRestaurants+$region['nbOfHotels']/$maxNbOfHotels+$region['nbOfShops']/$maxNbOfShops);
+                        $regions[$key]['calculatedScore'] = 1/5*($region['nbOfPhotos']/$maxNbOfPhotos+$region['nbOfCafes']/$maxNbOfCafes+$region['nbOfRestaurants']/$maxNbOfRestaurants+$region['nbOfHotels']/$maxNbOfHotels+$region['nbOfShops']/$maxNbOfShops);
                         if($key == "oldCityCenter") {
                             $temp1 = 1/2*$region['nbOfPhotos']/$maxNbOfPhotos;
                             $temp2 = 1/4*$region['nbOfCafes']/$maxNbOfCafes;
@@ -367,8 +378,9 @@ function normalise($array, $maxValue) {
                         echo "while the assigned score was " . $region['score'] . "<br><br>";                        
                     }
 
-                    echo "<br><br><br>TEMP1 = " . $temp1 . "<br>TEMP2 = " . $temp2 . "<br>TEMP3 = " . $temp3 . "<br>TEMP4 = " . $temp4 . "<br>nbOfShops:" . $regions["oldCityCenter"]["nbOfShops"] . "<br>maxNbOfShops" . $maxNbOfShops;
+
                 ?>
+            </div>
         </div>
 
         <script src="http://openlayers.org/api/OpenLayers.js"></script>
@@ -606,11 +618,11 @@ function normalise($array, $maxValue) {
                 createMap(testData, divName, 11);
 
                 <?php
-                    $nbOfShops = normalise($nbOfShops, 8);
-                    $nbOfCafes = normalise($nbOfCafes, 8);
-                    $nbOfRestaurants = normalise($nbOfRestaurants, 8);
-                    $nbOfHotels = normalise($nbOfHotels, 8);
-                    $nbOfPhotos = normalise(json_decode($nbOfPhotos), $maxNbOfPhotos*2);
+                    $nbOfShops = normalise($nbOfShops, 5);
+                    $nbOfCafes = normalise($nbOfCafes, 5);
+                    $nbOfRestaurants = normalise($nbOfRestaurants, 5);
+                    $nbOfHotels = normalise($nbOfHotels, 5);
+                    $nbOfPhotos = normalise(json_decode($nbOfPhotos), $maxNbOfPhotos*5);
                     $normOSMData = array_merge($nbOfShops, $nbOfCafes, $nbOfRestaurants, $nbOfHotels, $nbOfPhotos);
                 ?>
 
@@ -619,7 +631,7 @@ function normalise($array, $maxValue) {
                     data: <?php echo json_encode($normOSMData); ?>
                 };
                 divName = "popularityScore";
-                createMap(testData, divName, 15);
+                createMap(testData, divName, 11);
 
             }
 
@@ -627,5 +639,15 @@ function normalise($array, $maxValue) {
                 init();
             };
         </script>
+        <div class="mapContainer rightMap">
+            <?php
+                echo "Business for rent found:" . getNbOfRealEstate(BUSINESS,RENT) . "<br>";
+                echo "Business for sale found:" . getNbOfRealEstate(BUSINESS,SALE) . "<br>";
+                echo "Flats for rent found:" . getNbOfRealEstate(FLAT,RENT) . "<br>";
+                echo "Flats for sale found:" . getNbOfRealEstate(FLAT,SALE) . "<br>";
+                echo "House for sale found:" . getNbOfRealEstate(HOUSE,SALE) . "<br>";
+            ?>
+
+        </div>
     </body>
 </html>
