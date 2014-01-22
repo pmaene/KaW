@@ -114,20 +114,21 @@ foreach ($result as $key => $square) {
 	$result[$key]['normBusinessRentPrice'] = $square['normBusinessRentPrice']/$maxNormBusinessRentPrice;
 
     $nbOfEachSaleCategory = 0;
-    if($result[$key]['normFlatSalePrice'] != 0)
-        $nbOfEachSaleCategory = $nbOfEachSaleCategory++;
-    if($result[$key]['normHouseSalePrice'] != 0)
-        $nbOfEachSaleCategory = $nbOfEachSaleCategory++;
-    if($result[$key]['normBusinessSalePrice'] != 0)
-        $nbOfEachSaleCategory = $nbOfEachSaleCategory++;
+    if ($result[$key]['normFlatSalePrice'] > 0)
+        $nbOfEachSaleCategory++;
+    if ($result[$key]['normHouseSalePrice'] > 0)
+        $nbOfEachSaleCategory++;
+    if ($result[$key]['normBusinessSalePrice'] > 0)
+        $nbOfEachSaleCategory++;
+
     $nbOfEachRentCategory = 0;
     if($result[$key]['normFlatRentPrice'] != 0)
-        $nbOfEachRentCategory = $nbOfEachRentCategory++;
+        $nbOfEachRentCategory++;
     if($result[$key]['normHouseRentPrice'] != 0)
-        $nbOfEachRentCategory = $nbOfEachRentCategory++;
+        $nbOfEachRentCategory++;
     if($result[$key]['normBusinessRentPrice'] != 0)
-        $nbOfEachRentCategory = $nbOfEachRentCategory++;
-    
+        $nbOfEachRentCategory++;
+
 	$result[$key]['normSalePrice'] = $result[$key]['normFlatSalePrice'] + $result[$key]['normHouseSalePrice'] + $result[$key]['normBusinessSalePrice'];
 	$result[$key]['normRentPrice'] = $result[$key]['normFlatRentPrice'] + $result[$key]['normHouseRentPrice'] + $result[$key]['normBusinessRentPrice'];
 
@@ -138,8 +139,8 @@ foreach ($result as $key => $square) {
 }
 
 foreach ($result as $square) {
-    $popularity = $square['nbOfPhotos']/$maxNbOfPhotos + $square['nbOfHotels']/$maxNbOfHotels + $square['nbOfCafes']/$maxNbOfCafes + $square['nbOfRestaurants']/$maxNbOfRestaurants + $square['nbOfShops']/$maxNbOfShops;
-	$line = $line = $square['nbOfPhotos'] . ',' . $square['nbOfHotels'] . ',' . $square['nbOfCafes'] . ',' . $square['nbOfRestaurants'] . ',' . $square['nbOfShops'] . ',' . $popularity . ',' . $square['normSalePrice'] . ',' . $square['normRentPrice'] . ',' . ($square['normSalePrice'] + $square['normRentPrice']) . PHP_EOL;
+    $popularity = 1/5*($square['nbOfPhotos']/$maxNbOfPhotos + $square['nbOfHotels']/$maxNbOfHotels + $square['nbOfCafes']/$maxNbOfCafes + $square['nbOfRestaurants']/$maxNbOfRestaurants + $square['nbOfShops']/$maxNbOfShops);
+	$line = $line = $square['nbOfPhotos'] . ',' . $square['nbOfHotels'] . ',' . $square['nbOfCafes'] . ',' . $square['nbOfRestaurants'] . ',' . $square['nbOfShops'] . ',' . $popularity . ',' . $square['normSalePrice'] . ',' . $square['normRentPrice'] . ',' . 1/2*($square['normSalePrice'] + $square['normRentPrice']) . PHP_EOL;
 	fwrite($handle, $line);
 }
 
