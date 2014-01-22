@@ -14,8 +14,6 @@ const HOTEL = "hotels";
 const SHOP = "shops";
 const CAFE = "cafes";
 
-mt_srand(getSeed());
-
 $data = unserialize(file_get_contents('/tmp/city'));
 $nbSquares = sqrt(count($data['squares']));
 
@@ -34,6 +32,10 @@ $maxNbOfRestaurants = 0;
 $maxNbOfHotels = 0;
 $maxNbOfShops = 0;
 
+$totalNbOfRealEstate = array(
+    RENT => 0,
+    SALE => 0
+);
 foreach ($data['squares'] as $square) {
     $resultSquare = [];
 
@@ -83,9 +85,12 @@ foreach ($data['squares'] as $square) {
     if ($resultSquare['nbOfShops'] > $maxNbOfShops)
         $maxNbOfShops = $resultSquare['nbOfShops'];
 
+    getTotalNbOfRealestate($square, $totalNbOfRealEstate);
+
     $result[] = $resultSquare;
 }
 
+$totalNbOfPhotos = 0;
 foreach ($result as $key => $square) {
     $result[$key]['normFlatSalePrice'] = $square['normFlatSalePrice']/$maxNormFlatSalePrice;
     $result[$key]['normHouseSalePrice'] = $square['normHouseSalePrice']/$maxNormHouseSalePrice;
@@ -97,160 +102,28 @@ foreach ($result as $key => $square) {
     $result[$key]['normSalePrice'] = $result[$key]['normFlatSalePrice'] + $result[$key]['normHouseSalePrice'] + $result[$key]['normBusinessSalePrice'];
     $result[$key]['normRentPrice'] = $result[$key]['normFlatRentPrice'] + $result[$key]['normHouseRentPrice'] + $result[$key]['normBusinessRentPrice'];
 
+    $totalNbOfPhotos += $square['nbOfPhotos'];
+
     $result[$key]['nbOfPhotos'] = $square['nbOfPhotos']/$maxNbOfPhotos;
     $result[$key]['nbOfHotels'] = $square['nbOfHotels']/$maxNbOfHotels;
     $result[$key]['nbOfCafes'] = $square['nbOfCafes']/$maxNbOfCafes;
     $result[$key]['nbOfRestaurants'] = $square['nbOfRestaurants']/$maxNbOfRestaurants;
     $result[$key]['nbOfShops'] = $square['nbOfShops']/$maxNbOfShops;
 
-    $total += $square['nbOfPhotos'];
-
     $result[$key]['popularity'] = 1/2*($result[$key]['nbOfPhotos']) + 1/8*($result[$key]['nbOfHotels'] + $result[$key]['nbOfCafes'] + $result[$key]['nbOfRestaurants'] + $result[$key]['nbOfShops']);
 }
 
-$maxNormSalePrice = $maxNormFlatSalePrice + $maxNormHouseSalePrice + $maxNormBusinessSalePrice;
-$maxNormRentPrice = $maxNormFlatRentPrice + $maxNormHouseRentPrice + $maxNormBusinessRentPrice;
+echo 'Photos' . PHP_EOL;
+echo '  Total: ' . $totalNbOfPhotos . PHP_EOL;
+echo '  Average: ' . $totalNbOfPhotos/count($data['squares']) . PHP_EOL;
+echo '  Maximum: ' . $maxNbOfPhotos . PHP_EOL;
 
-$out = 'realEstate = [';
+echo 'Real Estate' . PHP_EOL;
+echo '  Total: ' . ($totalNbOfRealEstate[RENT] + $totalNbOfRealEstate[SALE]) . PHP_EOL;
+echo '  Average: ' . ($totalNbOfRealEstate[RENT] + $totalNbOfRealEstate[SALE])/count($data['squares']) . PHP_EOL . PHP_EOL;
 
-$row = 0;
-$column = 0;
-foreach ($result as $square) {
-    $out .= $square['normSalePrice'];
-
-    if (($nbSquares-1) == $column%$nbSquares) {
-        $out .= '; ';
-
-        $column = 0;
-        $row++;
-    } else {
-        $out .= ' ';
-        $column++;
-    }
-}
-
-$out .= '];';
-echo $out . PHP_EOL;
-
-$out = 'popularity = [';
-
-$row = 0;
-$column = 0;
-foreach ($result as $square) {
-    $out .= $square['popularity'];
-
-    if (($nbSquares-1) == $column%$nbSquares) {
-        $out .= '; ';
-
-        $column = 0;
-        $row++;
-    } else {
-        $out .= ' ';
-        $column++;
-    }
-}
-
-$out .= '];';
-echo $out . PHP_EOL;
-
-$randomResult = array();
-for ($i = 0; $i < count($result); $i++) {
-    $randomResult[$i]['normSalePrice'] = mt_rand(0, $maxNormSalePrice);
-    $randomResult[$i]['normRentPrice'] = mt_rand(0, $maxNormRentPrice);
-
-    $randomResult[$i]['nbOfPhotos'] = mt_rand(0, $maxNbOfPhotos);
-    $randomResult[$i]['nbOfHotels'] = mt_rand(0, $maxNbOfHotels);
-    $randomResult[$i]['nbOfCafes'] = mt_rand(0, $maxNbOfCafes);
-    $randomResult[$i]['nbOfRestaurants'] = mt_rand(0, $maxNbOfRestaurants);
-    $randomResult[$i]['nbOfShops'] = mt_rand(0, $maxNbOfShops);
-}
-
-$maxNormSalePrice = 0;
-$maxNormRentPrice = 0;
-
-$maxNbOfPhotos = 0;
-$maxNbOfCafes = 0;
-$maxNbOfRestaurants = 0;
-$maxNbOfHotels = 0;
-$maxNbOfShops = 0;
-
-foreach ($randomResult as $square) {
-    if ($square['normSalePrice'] > $maxNormSalePrice)
-        $maxNormSalePrice = $square['normSalePrice'];
-
-    if ($square['normRentPrice'] > $maxNormRentPrice)
-        $maxNormRentPrice = $square['normRentPrice'];
-
-    if ($square['nbOfPhotos'] > $maxNbOfPhotos)
-        $maxNbOfPhotos = $square['nbOfPhotos'];
-
-    if ($square['nbOfCafes'] > $maxNbOfCafes)
-        $maxNbOfCafes = $square['nbOfPhotos'];
-
-    if ($square['nbOfRestaurants'] > $maxNbOfRestaurants)
-        $maxNbOfRestaurants = $square['nbOfRestaurants'];
-
-    if ($square['nbOfHotels'] > $maxNbOfHotels)
-        $maxNbOfHotels = $square['nbOfHotels'];
-
-    if ($square['nbOfShops'] > $maxNbOfShops)
-        $maxNbOfShops = $square['nbOfShops'];
-}
-
-foreach ($randomResult as $key => $square) {
-    $result[$key]['normSalePrice'] = $square['normSalePrice']/$maxNormSalePrice;
-    $result[$key]['normRentPrice'] = $square['normRentPrice']/$maxNormRentPrice;
-
-    $result[$key]['nbOfPhotos'] = $square['nbOfPhotos']/$maxNbOfPhotos;
-    $result[$key]['nbOfHotels'] = $square['nbOfPhotos']/$maxNbOfHotels;
-    $result[$key]['nbOfCafes'] = $square['nbOfPhotos']/$maxNbOfCafes;
-    $result[$key]['nbOfRestaurants'] = $square['nbOfPhotos']/$maxNbOfRestaurants;
-    $result[$key]['nbOfShops'] = $square['nbOfPhotos']/$maxNbOfShops;
-
-    $result[$key]['popularity'] = 1/2*($square['nbOfPhotos']/$maxNbOfPhotos) + 1/8*($square['nbOfHotels']/$maxNbOfHotels + $square['nbOfCafes']/$maxNbOfCafes + $square['nbOfRestaurants']/$maxNbOfRestaurants + $square['nbOfShops']/$maxNbOfShops);
-}
-
-$out = 'randomRealEstate = [';
-
-$row = 0;
-$column = 0;
-foreach ($result as $square) {
-    $out .= $square['normSalePrice'];
-
-    if (($nbSquares-1) == $column%$nbSquares) {
-        $out .= '; ';
-
-        $column = 0;
-        $row++;
-    } else {
-        $out .= ' ';
-        $column++;
-    }
-}
-
-$out .= '];';
-echo $out . PHP_EOL;
-
-$out = 'randomPopularity = [';
-
-$row = 0;
-$column = 0;
-foreach ($result as $square) {
-    $out .= $square['popularity'];
-
-    if (($nbSquares-1) == $column%$nbSquares) {
-        $out .= '; ';
-
-        $column = 0;
-        $row++;
-    } else {
-        $out .= ' ';
-        $column++;
-    }
-}
-
-$out .= '];';
-echo $out . PHP_EOL;
+echo '  Rent: ' . $totalNbOfRealEstate[RENT] . PHP_EOL;
+echo '  Sale: ' . $totalNbOfRealEstate[SALE] . PHP_EOL;
 
 function getNormalisedPrice($typeOfBuilding, $rentOrSale, $square) {
     $normPrice = 0;
@@ -263,7 +136,9 @@ function getNormalisedPrice($typeOfBuilding, $rentOrSale, $square) {
     return 0;
 }
 
-function getSeed() {
-    list($usec, $sec) = explode(' ', microtime());
-    return (float) $sec + ((float) $usec * 100000);
+function getTotalNbOfRealestate($square, &$total) {
+    foreach ($square['realEstate'] as $realEstate) {
+        $total[RENT] += count($realEstate[RENT]);
+        $total[SALE] += count($realEstate[SALE]);
+    }
 }
