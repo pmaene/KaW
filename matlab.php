@@ -94,8 +94,29 @@ foreach ($result as $key => $square) {
     //$result[$key]['normHouseRentPrice'] = $square['normHouseRentPrice']/$maxNormHouseRentPrice;
     $result[$key]['normBusinessRentPrice'] = $square['normBusinessRentPrice']/$maxNormBusinessRentPrice;
 
+    $nbOfEachSaleCategory = 0;
+    if ($result[$key]['normFlatSalePrice'] > 0)
+        $nbOfEachSaleCategory++;
+    if ($result[$key]['normHouseSalePrice'] > 0)
+        $nbOfEachSaleCategory++;
+    if ($result[$key]['normBusinessSalePrice'] > 0)
+        $nbOfEachSaleCategory++;
+
+    $nbOfEachRentCategory = 0;
+    if($result[$key]['normFlatRentPrice'] != 0)
+        $nbOfEachRentCategory++;
+    if($result[$key]['normHouseRentPrice'] != 0)
+        $nbOfEachRentCategory++;
+    if($result[$key]['normBusinessRentPrice'] != 0)
+        $nbOfEachRentCategory++;
+
     $result[$key]['normSalePrice'] = $result[$key]['normFlatSalePrice'] + $result[$key]['normHouseSalePrice'] + $result[$key]['normBusinessSalePrice'];
     $result[$key]['normRentPrice'] = $result[$key]['normFlatRentPrice'] + $result[$key]['normHouseRentPrice'] + $result[$key]['normBusinessRentPrice'];
+
+    if($nbOfEachSaleCategory != 0)
+        $result[$key]['normSalePrice'] = $result[$key]['normSalePrice']/$nbOfEachSaleCategory;
+    if($nbOfEachRentCategory != 0)
+        $result[$key]['normRentPrice'] = $result[$key]['normRentPrice']/$nbOfEachRentCategory;
 
     $result[$key]['nbOfPhotos'] = $square['nbOfPhotos']/$maxNbOfPhotos;
     $result[$key]['nbOfHotels'] = $square['nbOfHotels']/$maxNbOfHotels;
@@ -103,20 +124,15 @@ foreach ($result as $key => $square) {
     $result[$key]['nbOfRestaurants'] = $square['nbOfRestaurants']/$maxNbOfRestaurants;
     $result[$key]['nbOfShops'] = $square['nbOfShops']/$maxNbOfShops;
 
-    $total += $square['nbOfPhotos'];
-
-    $result[$key]['popularity'] = 1/2*($result[$key]['nbOfPhotos']) + 1/8*($result[$key]['nbOfHotels'] + $result[$key]['nbOfCafes'] + $result[$key]['nbOfRestaurants'] + $result[$key]['nbOfShops']);
+    $result[$key]['popularity'] = 1/5*($result[$key]['nbOfPhotos'] + $result[$key]['nbOfHotels'] + $result[$key]['nbOfCafes'] + $result[$key]['nbOfRestaurants'] + $result[$key]['nbOfShops']);
 }
-
-$maxNormSalePrice = $maxNormFlatSalePrice + $maxNormHouseSalePrice + $maxNormBusinessSalePrice;
-$maxNormRentPrice = $maxNormFlatRentPrice + $maxNormHouseRentPrice + $maxNormBusinessRentPrice;
 
 $out = 'realEstate = [';
 
 $row = 0;
 $column = 0;
 foreach ($result as $square) {
-    $out .= $square['normSalePrice'];
+    $out .= 1/2*($square['normSalePrice'] + $square['normRentPrice']);
 
     if (($nbSquares-1) == $column%$nbSquares) {
         $out .= '; ';
@@ -155,8 +171,8 @@ echo $out . PHP_EOL;
 
 $randomResult = array();
 for ($i = 0; $i < count($result); $i++) {
-    $randomResult[$i]['normSalePrice'] = mt_rand(0, $maxNormSalePrice);
-    $randomResult[$i]['normRentPrice'] = mt_rand(0, $maxNormRentPrice);
+    $randomResult[$i]['normSalePrice'] = mt_rand()/mt_getrandmax();
+    $randomResult[$i]['normRentPrice'] = mt_rand()/mt_getrandmax();
 
     $randomResult[$i]['nbOfPhotos'] = mt_rand(0, $maxNbOfPhotos);
     $randomResult[$i]['nbOfHotels'] = mt_rand(0, $maxNbOfHotels);
@@ -207,7 +223,7 @@ foreach ($randomResult as $key => $square) {
     $result[$key]['nbOfRestaurants'] = $square['nbOfPhotos']/$maxNbOfRestaurants;
     $result[$key]['nbOfShops'] = $square['nbOfPhotos']/$maxNbOfShops;
 
-    $result[$key]['popularity'] = 1/2*($square['nbOfPhotos']/$maxNbOfPhotos) + 1/8*($square['nbOfHotels']/$maxNbOfHotels + $square['nbOfCafes']/$maxNbOfCafes + $square['nbOfRestaurants']/$maxNbOfRestaurants + $square['nbOfShops']/$maxNbOfShops);
+    $result[$key]['popularity'] = 1/5*($square['nbOfPhotos']/$maxNbOfPhotos + $square['nbOfHotels']/$maxNbOfHotels + $square['nbOfCafes']/$maxNbOfCafes + $square['nbOfRestaurants']/$maxNbOfRestaurants + $square['nbOfShops']/$maxNbOfShops);
 }
 
 $out = 'randomRealEstate = [';
@@ -215,7 +231,7 @@ $out = 'randomRealEstate = [';
 $row = 0;
 $column = 0;
 foreach ($result as $square) {
-    $out .= $square['normSalePrice'];
+    $out .= 1/2*($square['normSalePrice'] + $square['normRentPrice']);
 
     if (($nbSquares-1) == $column%$nbSquares) {
         $out .= '; ';
