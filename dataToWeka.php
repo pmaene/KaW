@@ -113,8 +113,28 @@ foreach ($result as $key => $square) {
 	//$square[$key]['normHouseRentPrice'] = $square['normHouseRentPrice']/$maxNormHouseRentPrice;
 	$result[$key]['normBusinessRentPrice'] = $square['normBusinessRentPrice']/$maxNormBusinessRentPrice;
 
+    $nbOfEachSaleCategory = 0;
+    if($result[$key]['normFlatSalePrice'] != 0)
+        $nbOfEachSaleCategory = $nbOfEachSaleCategory++;
+    if($result[$key]['normHouseSalePrice'] != 0)
+        $nbOfEachSaleCategory = $nbOfEachSaleCategory++;
+    if($result[$key]['normBusinessSalePrice'] != 0)
+        $nbOfEachSaleCategory = $nbOfEachSaleCategory++;
+    $nbOfEachRentCategory = 0;
+    if($result[$key]['normFlatRentPrice'] != 0)
+        $nbOfEachRentCategory = $nbOfEachRentCategory++;
+    if($result[$key]['normHouseRentPrice'] != 0)
+        $nbOfEachRentCategory = $nbOfEachRentCategory++;
+    if($result[$key]['normBusinessRentPrice'] != 0)
+        $nbOfEachRentCategory = $nbOfEachRentCategory++;
+    
 	$result[$key]['normSalePrice'] = $result[$key]['normFlatSalePrice'] + $result[$key]['normHouseSalePrice'] + $result[$key]['normBusinessSalePrice'];
 	$result[$key]['normRentPrice'] = $result[$key]['normFlatRentPrice'] + $result[$key]['normHouseRentPrice'] + $result[$key]['normBusinessRentPrice'];
+
+    if($nbOfEachSaleCategory != 0)
+        $result[$key]['normSalePrice'] = $result[$key]['normSalePrice']/$nbOfEachSaleCategory;
+    if($nbOfEachRentCategory != 0)
+        $result[$key]['normRentPrice'] = $result[$key]['normRentPrice']/$nbOfEachRentCategory;
 }
 
 foreach ($result as $square) {
