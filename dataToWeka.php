@@ -139,8 +139,8 @@ foreach ($result as $key => $square) {
 }
 
 foreach ($result as $square) {
-    $popularity = $square['nbOfPhotos']/$maxNbOfPhotos + $square['nbOfHotels']/$maxNbOfHotels + $square['nbOfCafes']/$maxNbOfCafes + $square['nbOfRestaurants']/$maxNbOfRestaurants + $square['nbOfShops']/$maxNbOfShops;
-	$line = $line = $square['nbOfPhotos'] . ',' . $square['nbOfHotels'] . ',' . $square['nbOfCafes'] . ',' . $square['nbOfRestaurants'] . ',' . $square['nbOfShops'] . ',' . $popularity . ',' . $square['normSalePrice'] . ',' . $square['normRentPrice'] . ',' . ($square['normSalePrice'] + $square['normRentPrice']) . PHP_EOL;
+    $popularity = 1/5*($square['nbOfPhotos']/$maxNbOfPhotos + $square['nbOfHotels']/$maxNbOfHotels + $square['nbOfCafes']/$maxNbOfCafes + $square['nbOfRestaurants']/$maxNbOfRestaurants + $square['nbOfShops']/$maxNbOfShops);
+	$line = $line = $square['nbOfPhotos'] . ',' . $square['nbOfHotels'] . ',' . $square['nbOfCafes'] . ',' . $square['nbOfRestaurants'] . ',' . $square['nbOfShops'] . ',' . $popularity . ',' . $square['normSalePrice'] . ',' . $square['normRentPrice'] . ',' . 1/2*($square['normSalePrice'] + $square['normRentPrice']) . PHP_EOL;
 	fwrite($handle, $line);
 }
 
