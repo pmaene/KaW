@@ -91,6 +91,10 @@ foreach ($data['squares'] as $square) {
 }
 
 $totalNbOfPhotos = 0;
+$totalNbOfHotels = 0;
+$totalNbOfCafes = 0;
+$totalNbOfRestaurants = 0;
+$totalNbOfShops = 0;
 foreach ($result as $key => $square) {
     $result[$key]['normFlatSalePrice'] = $square['normFlatSalePrice']/$maxNormFlatSalePrice;
     $result[$key]['normHouseSalePrice'] = $square['normHouseSalePrice']/$maxNormHouseSalePrice;
@@ -103,6 +107,10 @@ foreach ($result as $key => $square) {
     $result[$key]['normRentPrice'] = $result[$key]['normFlatRentPrice'] + $result[$key]['normHouseRentPrice'] + $result[$key]['normBusinessRentPrice'];
 
     $totalNbOfPhotos += $square['nbOfPhotos'];
+    $totalNbOfHotels += $square['nbOfHotels'];
+    $totalNbOfCafes += $square['nbOfCafes'];
+    $totalNbOfRestaurants += $square['nbOfRestaurants'];
+    $totalNbOfShops += $square['nbOfShops'];
 
     $result[$key]['nbOfPhotos'] = $square['nbOfPhotos']/$maxNbOfPhotos;
     $result[$key]['nbOfHotels'] = $square['nbOfHotels']/$maxNbOfHotels;
@@ -124,6 +132,12 @@ echo '  Average: ' . ($totalNbOfRealEstate[RENT] + $totalNbOfRealEstate[SALE])/c
 
 echo '  Rent: ' . $totalNbOfRealEstate[RENT] . PHP_EOL;
 echo '  Sale: ' . $totalNbOfRealEstate[SALE] . PHP_EOL;
+
+echo 'Open Street Map' . PHP_EOL;
+echo '  Hotels: ' . $totalNbOfHotels . PHP_EOL;
+echo '  Cafes: ' . $totalNbOfCafes . PHP_EOL;
+echo '  Restaurants: ' . $totalNbOfRestaurants . PHP_EOL;
+echo '  Shops: ' . $totalNbOfShops . PHP_EOL;
 
 function getNormalisedPrice($typeOfBuilding, $rentOrSale, $square) {
     $normPrice = 0;
